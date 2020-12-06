@@ -34,7 +34,7 @@ public interface IFileConverter extends Task {
      * возникшего в ходе выполнения конвертации.
      */
     String toBinary(String inputFileName, String outputFileName,
-                    String charSet);
+                    String charSet) throws ConverterException;
 
     /**
      * Метод преобразует двоичные данные исходного файла в их
@@ -57,7 +57,7 @@ public interface IFileConverter extends Task {
      * возникшего в ходе выполнения конвертации.
      */
     String toText(String inputFileName, String outputFileName,
-                  String charSet);
+                  String charSet) throws ConverterException;
 
     /**
      * Метод подсчитывает и возвращает сумму всех чисел, которые
