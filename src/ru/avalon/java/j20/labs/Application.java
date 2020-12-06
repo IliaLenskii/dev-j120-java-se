@@ -1,13 +1,14 @@
 package ru.avalon.java.j20.labs;
 
-import ru.avalon.java.j20.labs.tasks.*;
-
 /**
- * Лабораторная работа №1
+ * Лабораторная работа №3
  *
- * Напишите реализацию методов класса StringService
+ * Базовый ввод/вывод
+ * Напишите реализацию класса DataConverter, который наследует
+ * интерфейс: IFileConverter
  *
  */
+
 public class Application {
 
     /**
@@ -15,13 +16,7 @@ public class Application {
      * лабораторной работы.
      */
     private static final Task[] tasks = {
-        new Task1(),
-        new Task2(),
-        new Task3(),
-        new Task4(),
-        new Task5(),
-        new User(),
-        new StringService()
+        new DataConverter()
     };
 
     /**
