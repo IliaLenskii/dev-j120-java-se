@@ -1,12 +1,13 @@
 package ru.avalon.java.j20.labs;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
+
 
 import ru.avalon.java.j20.labs.userExeptions.ConverterException;
 
@@ -22,17 +23,73 @@ public class DataConverter implements IFileConverter {
     private final String fileIntoDigits = "digits.tmp";
 
     @Override
-    public String toBinary(String inputFileName, String outputFileName, String charSet) throws ConverterException {
+    public String toBinary(String inputFileName, String outputFileName, String charSet)  {
 
-        //private boolean makeFile(String name) throws IOException {
+        try {
+            this.makeFile(outputFileName);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            return null;
+        }
 
-        return null;
+        Path path = Paths.get(inputFileName);
+
+        try (
+            BufferedReader reader = Files.newBufferedReader(path, StandardCharsets.UTF_8);
+            ObjectOutputStream writer = new ObjectOutputStream(new FileOutputStream(outputFileName))
+        ) {
+
+            String line;
+            while ((line = reader.readLine()) != null) {
+
+                line += System.lineSeparator();
+
+                byte[] byteArr = line.getBytes(StandardCharsets.UTF_8);
+
+                writer.write(byteArr);
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return outputFileName;
     }
 
     @Override
-    public String toText(String inputFileName, String outputFileName, String charSet) throws ConverterException {
+    public String toText(String inputFileName, String outputFileName, String charSet) {
 
-        return null;
+        try {
+            this.makeFile(outputFileName);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            return null;
+        }
+
+        var tmpByte = new ArrayList<Byte>();
+
+        try (
+            ObjectInputStream reader = new ObjectInputStream(new FileInputStream(inputFileName));
+            BufferedWriter writer = Files.newBufferedWriter(Paths.get(outputFileName));
+        ) {
+            while(reader.available() > 0)
+                tmpByte.add( reader.readByte() );
+
+            byte bb2[] = new byte[ tmpByte.size() ];
+
+            int cc = 0;
+            for(byte itm : tmpByte)
+                bb2[ cc++ ] = itm;
+
+            String s2 = new String(bb2);
+
+            writer.write(s2);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return outputFileName;
     }
 
     @Override
@@ -51,6 +108,13 @@ public class DataConverter implements IFileConverter {
             ex.printStackTrace();
         }
 
+        String binFile = "binary.bin";
+        String binToText = "convertFromBinary.txt";
+
+        this.toBinary(this.fileIntoText, binFile, "utf-8");
+
+        this.toText(binFile, binToText,"utf-8");
+
         System.out.println("__ok");
     }
 
@@ -67,8 +131,8 @@ public class DataConverter implements IFileConverter {
     private void makeTmplFiles() throws IOException {
 
         String tmpText[] = new String[2];
-        tmpText[0] = "Съешь ещё этих мягких французских булок, да выпей же чаю.";
-        tmpText[1] = "The quick brown fox jumps over the lazy dog.";
+        tmpText[0] = "Съешь 34 ещё этих 2466 мягких 56.5 французских булок, 34.675 да выпей же чаю.";
+        tmpText[1] = "The 1.0 quick 6543.2 brown fox 134.87 jumps over the lazy dog. 0.0";
 
         String tmpDigitsLines[] = new String[1];
         tmpDigitsLines[0] = "150 144 185 187 103 147 160 167 51 95";

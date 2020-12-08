@@ -538,3 +538,5 @@ nbbuild/
 dist/
 nbdist/
 .nb-gradle/
+/binary.bin
+/convertFromBinary.txt
