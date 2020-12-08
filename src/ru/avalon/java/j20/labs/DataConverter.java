@@ -7,6 +7,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 
 import ru.avalon.java.j20.labs.userExeptions.ConverterException;
@@ -20,7 +21,6 @@ import ru.avalon.java.j20.labs.userExeptions.ConverterException;
 public class DataConverter implements IFileConverter {
 
     private final String fileIntoText = "text.tmp";
-    private final String fileIntoDigits = "digits.tmp";
 
     @Override
     public String toBinary(String inputFileName, String outputFileName, String charSet)  {
@@ -94,7 +94,39 @@ public class DataConverter implements IFileConverter {
 
     @Override
     public double getSum(String fileName) throws ConverterException {
-        return 0;
+
+        if(!this.isFileExists(fileName))
+            throw new ConverterException("File doesn't exist: "+ fileName);
+
+        double summa = 0d;
+
+        Path path = Paths.get(fileName);
+        String regex = "[0-9]+(.[0-9]+)?";
+
+        try (
+            BufferedReader reader = Files.newBufferedReader(path, StandardCharsets.UTF_8);
+        ) {
+
+            String line;
+            while ((line = reader.readLine()) != null) {
+
+                String[] splitStr = line.split("\\s+");
+
+                for(int i = 0; i < splitStr.length; ++i) {
+                    String itm = splitStr[i];
+
+                    if(!itm.matches(regex))
+                        continue;
+
+                    summa += Double.parseDouble( itm.trim() );
+                }
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return summa;
     }
 
     @Override
@@ -113,9 +145,15 @@ public class DataConverter implements IFileConverter {
 
         this.toBinary(this.fileIntoText, binFile, "utf-8");
 
-        this.toText(binFile, binToText,"utf-8");
+        String convFile = this.toText(binFile, binToText,"utf-8");
 
-        System.out.println("__ok");
+        try {
+
+            this.getSum(convFile);
+        } catch (ConverterException ex){
+
+            ex.printStackTrace();
+        }
     }
 
     private boolean isFileExists(String name) {
@@ -134,22 +172,10 @@ public class DataConverter implements IFileConverter {
         tmpText[0] = "Съешь 34 ещё этих 2466 мягких 56.5 французских булок, 34.675 да выпей же чаю.";
         tmpText[1] = "The 1.0 quick 6543.2 brown fox 134.87 jumps over the lazy dog. 0.0";
 
-        String tmpDigitsLines[] = new String[1];
-        tmpDigitsLines[0] = "150 144 185 187 103 147 160 167 51 95";
-        //tmpDigitsLines[1] = "183, 168, 98, 82, 194, 71, 84, 69, 82, 151";
-        //tmpDigitsLines[3] = "145, 90, 82, 164, 119, 186, 174, 71, 94, 131";
-        //tmpDigitsLines[4] = "114, 123, 141, 173, 93, 143, 182, 178, 111, 83";
-
         if(!isFileExists(this.fileIntoText)) {
 
             this.makeFile(this.fileIntoText);
             this.writeUnicodeJava8(this.fileIntoText, tmpText);
-        }
-
-        if(!isFileExists(this.fileIntoDigits)) {
-
-            this.makeFile(this.fileIntoDigits);
-            this.writeUnicodeJava8(this.fileIntoDigits, tmpDigitsLines);
         }
     }
 
